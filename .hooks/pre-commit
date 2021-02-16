@@ -1,0 +1,50 @@
+#!/bin/sh
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Prevent Master Commit
+#branch="$(git rev-parse --abbrev-ref HEAD)"
+#if [ "$branch" = "master" ]; then
+#  echo "You can't commit directly to master branch"
+#  exit 1
+#fi
+
+# Prevent Env Commits
+env_changed=`git diff --staged --name-only | grep '\.env^' | wc -l`
+if [[ $env_changed -gt 0 ]]
+then
+  echo "${RED}Env Being Commited ${NC}: Check for Secrets"
+  echo "Help : git reset HEAD~1"
+fi
+
+# Lint EOF for files in the diff
+git diff --staged --name-only --diff-filter=ACM | xargs -n 1 sed -i '' -e '$a\'
+
+# Format .tf files in the diff
+git diff --cached --name-only --diff-filter=ACM | grep ".tf$" | xargs -n 1 terraform fmt
+terraform_not_okay=$?
+
+if [[ "$terraform_not_okay" -gt 0 ]]
+then
+  echo "${RED}Terraform fmt Failed ${NC}"
+  echo "Help: brew install terraform"
+else
+    echo "${GREEN}Success Terraform Lint${NC}"
+fi
+
+finalstatus=$((terraform_not_okay))
+if [[ "$finalstatus" -gt 0 ]]
+then
+  echo "${RED}Failed to Commit${NC}"
+  echo "You can try to fix required statuses or skip status checks"
+  echo "Help : git commit --no-verify"
+else
+  echo "${GREEN}Commit Hook Success${NC}"
+fi
+
+# Add the files that changed to be committed
+git add `git diff --diff-filter=d --name-only --cached`
+
+exit $finalstatus
