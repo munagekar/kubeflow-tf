@@ -1,5 +1,5 @@
 resource "google_endpoints_service" "openapi_service" {
-  service_name = "kubeflow"
+  service_name = var.cloud_endpoint
   openapi_config = format(
     file("${path.module}/openapi_spec.yml"),
     var.cloud_endpoint,
