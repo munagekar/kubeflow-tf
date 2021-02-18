@@ -19,3 +19,20 @@ resource "kubernetes_manifest" "iap_backend_config" {
     }
   }
 }
+
+resource "kubernetes_manifest" "managed_certificate" {
+  provider = "kubernetes-alpha"
+  manifest = {
+    "apiVersion" = "networking.gke.io/v1"
+    "kind"       = "ManagedCertificate"
+    "metadata" = {
+      "name"      = "gke-certificate"
+      "namespace" = "istio-system"
+    }
+    "spec" = {
+      "domains" = [
+        var.cloud_endpoint,
+      ]
+    }
+  }
+}
