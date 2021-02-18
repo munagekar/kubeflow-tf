@@ -4,6 +4,6 @@ resource "google_endpoints_service" "openapi_service" {
     file("${path.module}/openapi_spec.yml"),
     var.cloud_endpoint,
     var.cloud_endpoint,
-    google_compute_address.ip_address.address
+    google_compute_global_address.ip_address.address
   )
 }

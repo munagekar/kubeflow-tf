@@ -5,7 +5,7 @@ resource "kubernetes_ingress" "envoy_ingress" {
     annotations = {
       "ingress.kubernetes.io/ssl-redirect" : "true"
       "kubernetes.io/ingress.class" : "gce"
-      "kubernetes.io/ingress.global-static-ip-name" : google_compute_address.ip_address.name
+      "kubernetes.io/ingress.global-static-ip-name" : google_compute_global_address.ip_address.name
       "networking.gke.io/managed-certificates" : "gke-certificate"
     }
   }
